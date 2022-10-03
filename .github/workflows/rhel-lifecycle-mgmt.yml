@@ -1,5 +1,5 @@
 # Workflow name
-name: Certificate Management Build
+name: RHEL Lifecycle EE
 
 # Controls when the workflow will run
 on:
