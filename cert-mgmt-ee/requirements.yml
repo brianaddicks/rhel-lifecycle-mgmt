@@ -1,0 +1,8 @@
+---
+roles:
+  - name: redhat.satellite_operations.installer
+
+---
+collections:
+  - community.general
+  - amazon.aws
