@@ -1,5 +1,5 @@
 ---
 collections:
+  - redhat.satellite
   - community.general
   - amazon.aws
-  - redhat.satellite

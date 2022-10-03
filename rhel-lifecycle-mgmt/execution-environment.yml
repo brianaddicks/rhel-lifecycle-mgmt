@@ -13,7 +13,5 @@ dependencies:
 additional_build_steps:
   prepend: |
     RUN pip3 install --upgrade pip setuptools
-    RUN cat ansible.cfg
   append: |
-    RUN cat ansible.cfg
     LABEL quay.expires-after="45d"
