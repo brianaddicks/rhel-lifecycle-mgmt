@@ -33,7 +33,7 @@
         controller_templates:
           - name: "RHEL Lifecycle - Bootstrap"
             job_type: run
-            inventory: "Workshop Inventory"
+            inventory: "Demo Inventory"
             project: "RHEL Lifecyce Management"
             playbook: "playbooks/satellite.yml"
-            execution_environment: Default execution environment
+            execution_environment: RHEL Lifecycle EE
