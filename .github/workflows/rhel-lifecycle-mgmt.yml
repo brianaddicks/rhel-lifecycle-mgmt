@@ -9,6 +9,13 @@ on:
       - main
     paths:
       - 'rhel-lifecycle-mgmt/**'
+  workflow_call:
+    inputs:
+      MY_AH_TOKEN:
+        description: 'AH Token workaround'
+        default: ''
+        required: true
+        type: string
 
   # Schedule workflow run at 00:00 on Sunday
   schedule:
@@ -29,4 +36,4 @@ jobs:
       REDHAT_PASSWORD: ${{ secrets.REDHAT_PASSWORD }}
       QUAY_USERNAME: ${{ secrets.QUAY_USERNAME }}
       QUAY_PASSWORD: ${{ secrets.QUAY_PASSWORD }}
-      AH_TOKEN: ${{ secrets.AH_TOKEN }}
+      AH_TOKEN: ${{ inputs.MY_AH_TOKEN }}

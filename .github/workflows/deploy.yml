@@ -16,6 +16,11 @@ on:
         default: 'latest'
         required: true
         type: string
+      MY_AH_TOKEN:
+        description: 'AH Token workaround'
+        default: 'latest'
+        required: true
+        type: string
     secrets:
       REDHAT_PASSWORD:
         description: 'needed for registry login'
@@ -71,7 +76,7 @@ jobs:
           sed -i "s/my_ah_token/$AH_TOKEN/1" ansible.cfg
           cat ansible.cfg
         env:
-          AH_TOKEN: ${{ secrets.AH_TOKEN }}
+          AH_TOKEN: ${{ inputs.MY_AH_TOKEN }}
 
       - name: Build image
         id: build-image
