@@ -1,3 +1,4 @@
+---
 - name: Setup AAP Components
   hosts: localhost
   gather_facts: false
