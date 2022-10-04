@@ -11,6 +11,11 @@
         name: "redhat_cop.controller_configuration.{{ item }}"
       loop: "{{ controller_components }}"
       vars:
+        project_name: RHEL Lifecycle Management
+        inventory_name: Demo Inventory
+        playbook_path: playbooks
+        ee_name: "{{ RHEL Lifecycle EE }}"
+
         controller_components:
           - credential_types
           - job_templates
@@ -33,7 +38,7 @@
         controller_templates:
           - name: "RHEL Lifecycle - Bootstrap"
             job_type: run
-            inventory: "Demo Inventory"
-            project: "RHEL Lifecyce Management"
-            playbook: "playbooks/satellite.yml"
-            execution_environment: RHEL Lifecycle EE
+            inventory: "{{ inventory_name }}"
+            project: "{{ project_name }}"
+            playbook: "{{ playbook_path }}/satellite.yml"
+            execution_environment: "{{ ee_name }}"
