@@ -1,6 +1,6 @@
 ---
-# aws play
-- name: base aws config
+
+- name: Base AWS Config
   hosts: vpc
   connection: local
   environment:
@@ -8,48 +8,49 @@
     AWS_SECRET_ACCESS_KEY: "{{ aws_secret_key }}"
     AWS_REGION: "{{ aws_region }}"
   roles:
-   - role: aws-bootstrap
+    - role: aws-bootstrap
   tasks:
-   - meta: refresh_inventory
+    - name: Refresh inventory
+      ansible.builtin.meta: refresh_inventory
 
 # satellite post-provisioning
-- name: install/configure satellite
+- name: Install/configure satellite
   hosts: satellite
   environment:
     SATELLITE_USERNAME: "{{ satellite_admin_username }}"
     SATELLITE_PASSWORD: "{{ satellite_admin_password }}"
     SATELLITE_SERVER_URL: "https://{{ inventory_hostname }}"
-    SATELLITE_VALIDATE_CERTS: no
+    SATELLITE_VALIDATE_CERTS: false
   vars:
     - vpc_subnet_id: "{{ hostvars['vpc-ansibled']['vpc_subnet_id'] }}"
     - vpc_security_groups: "{{ hostvars['vpc-ansibled']['returned_security_groups'] | json_query('results[*].group_id') }}"
   remote_user: ec2-user
-  become: yes
-  gather_facts: no
+  become: true
+  gather_facts: false
 
   tasks:
     - name: Wait 600 seconds for target connection to become reachable/usable
       ansible.builtin.wait_for_connection:
 
     - name: RHEL common plays
-      import_role:
+      ansible.builtin.import_role:
         name: rhel-common
 
-    # gather facts now that we've installed python
-    - ansible.builtin.setup:
+    - name: Gather facts now that we've installed python
+      ansible.builtin.setup:
 
     - name: Satellite install prereqs
-      import_role:
+      ansible.builtin.import_role:
         name: satellite-preinstall
 
     # get service facts so we can run satellite installer dynamically
-    - name: check services
-      service_facts:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
 
     # using import role so we can skip if foreman is always running
     # the redhat.satellite_operations.installer is idempotent, but takes forever even after initial installation
-    - name: run satellite installer
-      import_role:
+    - name: Run satellite installer
+      ansible.builtin.import_role:
         name: redhat.satellite_operations.installer
       vars:
         satellite_installer_scenario: satellite
@@ -58,34 +59,28 @@
           - "--foreman-initial-admin-password {{ satellite_admin_password }}"
       when: ansible_facts.services["foreman.service"].state != "running"
 
-    - debug:
-        var: desired_ami_id
-
     # post-installation steps
-    - name: satellite post-installation configuration
-      import_role:
+    - name: Satellite post-installation configuration
+      ansible.builtin.import_role:
         name: satellite-postinstall
       vars:
         - desired_ami_id: "{{ hostvars['vpc-ansibled']['desired_ami_id'] }}"
 
-    - debug:
-        var: ansible_facts.domain
-
 # bind post-provisioning
-- name: install/configure bind
+- name: Install/configure bind
   hosts: dnsservers
   remote_user: ec2-user
-  become: yes
-  gather_facts: no
+  become: true
+  gather_facts: false
 
   tasks:
     - name: Wait 600 seconds for target connection to become reachable/usable
       ansible.builtin.wait_for_connection:
 
     - name: RHEL common plays
-      import_role:
+      ansible.builtin.import_role:
         name: rhel-common
 
-    - name: stand up bind server
-      import_role:
+    - name: Stand up bind server
+      ansible.builtin.import_role:
         name: bind-server
