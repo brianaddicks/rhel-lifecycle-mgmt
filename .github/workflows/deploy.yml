@@ -68,6 +68,7 @@ jobs:
 
       - name: substitute token for automation hub
         id: ah-token
+        working-directory: ${{ inputs.EE_FOLDER_NAME }}
         run: |
           sed -i "s/my_ah_token/$AH_TOKEN/1" ansible.cfg
           cat ansible.cfg
