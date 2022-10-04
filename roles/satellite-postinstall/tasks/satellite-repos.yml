@@ -1,0 +1,35 @@
+# enable desired repos
+- name: "enable desired repositories"
+  redhat.satellite.repository_set:
+    name: "{{ item.name }}"
+    organization: "{{ satellite_organization }}"
+    product: "{{ item.product }}"
+    repositories:
+    - basearch: "{{ item.basearch }}"
+    state: enabled
+  loop: "{{ satellite_enabled_repositories }}"
+
+# # enable desired repos
+# - name: "enable desired repositories"
+#   redhat.satellite.repository_set:
+#     name: "{{ item.name }}"
+#     organization: "{{ satellite_organization }}"
+#     product: "{{ item.product }}"
+#     repositories:
+#     - basearch: "{{ item.basearch }}"
+#       releasever: "{{ item.releasever }}"
+#     state: enabled
+#   loop: "{{ satellite_enabled_repositories_with_releasever }}"
+
+- name: get repos
+  redhat.satellite.repository_set_info:
+    organization: "{{ satellite_organization }}"
+  register: my_repo_sets
+
+#TODO: this isn't idempotent, syncs regardless of when the last sync happened, need to see if we can pull this info somehow
+- name: "sync all repos"
+  redhat.satellite.repository_sync:
+    repository: "{{ item.name }}"
+    organization: "{{ satellite_organization }}"
+    product: "{{ item.product }}"
+  loop: "{{ satellite_enabled_repositories }}"

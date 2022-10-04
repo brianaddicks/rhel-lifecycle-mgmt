@@ -1,0 +1,23 @@
+---
+# vars file for satellite-server
+
+required_packages:
+  - sos
+  - satellite
+
+required_repos:
+  - rhel-8-for-x86_64-baseos-rpms
+  - rhel-8-for-x86_64-appstream-rpms
+  - satellite-6.11-for-rhel-8-x86_64-rpms
+  - satellite-maintenance-6.11-for-rhel-8-x86_64-rpms
+
+firewall_services:
+  - http
+  - https
+  - cockpit
+  - dns
+
+firewall_ports:
+  - 5647/tcp
+  - 8000/tcp
+  - 8140/tcp

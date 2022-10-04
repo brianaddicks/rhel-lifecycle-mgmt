@@ -1,0 +1,19 @@
+# tasks common to all rhel hosts
+
+# firewalld services
+- name: allow services through firewall
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  loop: "{{ firewall_services }}"
+
+# firewalld ports
+- name: allow ports through firewall
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  loop: "{{ firewall_ports }}"

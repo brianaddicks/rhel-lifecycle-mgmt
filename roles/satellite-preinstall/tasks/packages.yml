@@ -1,0 +1,21 @@
+# tasks common to all rhel hosts
+
+# enable repos
+- name: enable rhsm repos
+  rhsm_repository:
+    name: "{{ required_repos }}"
+    state: enabled
+    purge: yes
+
+# enable satellite module, ansible.builtin.dnf does not currently support this.
+- name: "Enable satellite:el8"
+  command: dnf module enable -y satellite:el8
+  register: result
+  changed_when:
+    - '"Enabling module streams" in result.stdout'
+
+# install required packages
+- name: install sos and satellite packages
+  dnf:
+    name: "{{ required_packages }}"
+    state: latest

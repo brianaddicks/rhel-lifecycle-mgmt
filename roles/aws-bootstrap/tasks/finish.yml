@@ -1,0 +1,9 @@
+# create new inventory file with ec2 servers
+- name: create new inventory file
+  template:
+    src: ec2servers.j2
+    dest: "{{ inventory_dir }}/ec2inventory"
+
+# display some useful info when everything is done
+- debug:
+    msg: "Satellite available on https://{{ satellite_fqdn }} ({{ satellite_public_ip }})"

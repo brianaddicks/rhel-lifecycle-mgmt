@@ -1,0 +1,66 @@
+# create ec2 instance for bind server
+- name: create bind ec2 bind server
+  ec2_instance:
+    key_name: "{{ vpc_key }}"
+    instance_type: "{{ bind_instance_type }}"
+    image_id: "{{ desired_ami_id }}"
+    wait: "yes"
+    security_group: "{{ vpc_security_group_name }}"
+    vpc_subnet_id: "{{ vpc_subnet_facts.subnets[0].id }}"
+    # network:
+    #   assign_public_ip: yes
+    name: "{{ bind_hostname }}"
+    state: running
+  register: bind_ec2_instance
+
+# associate eip
+- name: associate elastic ip with bind
+  ec2_eip:
+    device_id: "{{ bind_ec2_instance.instance_ids[0] }}"
+    allow_reassociation: yes
+    reuse_existing_ip_allowed: yes
+    in_vpc: yes
+    state: present
+  register: bind_eip
+
+# set public ip fact
+- name: set bind server facts
+  set_fact:
+    bind_public_ip: "{{ bind_eip.public_ip }}"
+    bind_fqdn: "bind.{{ route53_domain.name }}"
+    bind_private_ip: "{{ bind_ec2_instance.instances[0].network_interfaces[0].private_ip_address }}"
+
+# add dns entry for bind
+- name: add public A record for bind
+  route53:
+    state: present
+    hosted_zone_id: "{{ route53_domain.id }}"
+    record: "{{ bind_fqdn }}"
+    type: A
+    ttl: 60
+    value: "{{ bind_public_ip }}"
+    wait: yes
+
+# add dns entry for bind
+- name: add private A record for bind
+  route53:
+    state: present
+    hosted_zone_id: "{{ route53_domain_private.id }}"
+    record: "{{ bind_fqdn }}"
+    type: A
+    ttl: 60
+    value: "{{ bind_private_ip }}"
+    wait: yes
+    overwrite: yes
+
+# add dns entry for bind
+- name: add private PTR record for bind
+  route53:
+    state: present
+    hosted_zone_id: "{{ route53_reverse_zone.zone_id }}"
+    record: "{{ (bind_private_ip.split('.'))[::-1]|join('.') }}.in-addr.arpa"
+    type: PTR
+    ttl: 60
+    value: "{{ bind_fqdn }}"
+    wait: yes
+    overwrite: yes

@@ -1,0 +1,9 @@
+---
+# tasks file for aws-bootstrap
+- import_tasks: setup.vpc.yml
+- import_tasks: setup.gateway.yml
+- import_tasks: ec2.amifacts.yml
+- import_tasks: ec2.keypair.yml
+- import_tasks: ec2.satellite.yml
+- import_tasks: ec2.bind.yml
+- import_tasks: finish.yml

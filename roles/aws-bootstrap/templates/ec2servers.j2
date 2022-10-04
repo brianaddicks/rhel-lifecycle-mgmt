@@ -1,0 +1,9 @@
+[satellite]
+{{ satellite_fqdn | regex_search('.+(?=.$)') }}    ansible_ssh_private_key_file="{{ ec2_keypair_file }}"
+
+[dnsservers]
+{{ bind_fqdn | regex_search('.+(?=.$)') }}    ansible_ssh_private_key_file="{{ ec2_keypair_file }}"
+
+[rhelservers:children]
+satellite
+dnsservers

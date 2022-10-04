@@ -1,0 +1,66 @@
+# create ec2 instance for satellite
+- name: create satellite ec2 instance
+  ec2_instance:
+    key_name: "{{ vpc_key }}"
+    instance_type: "{{ satellite_instance_type }}"
+    image_id: "{{ desired_ami_id }}"
+    wait: "yes"
+    security_group: "{{ vpc_security_group_name }}"
+    vpc_subnet_id: "{{ vpc_subnet_facts.subnets[0].id }}"
+    # network:
+    #   assign_public_ip: yes
+    name: "{{ satellite_hostname }}"
+    state: running
+  register: satellite_ec2_instance
+
+# associate eip
+- name: associate elastic ip with satellite
+  ec2_eip:
+    device_id: "{{ satellite_ec2_instance.instance_ids[0] }}"
+    allow_reassociation: yes
+    reuse_existing_ip_allowed: yes
+    in_vpc: yes
+    state: present
+  register: satellite_eip
+
+# set public ip fact
+- name: set satellite public ip fact
+  set_fact:
+    satellite_public_ip: "{{ satellite_eip.public_ip }}"
+    satellite_fqdn: "satellite.{{ route53_domain.name }}"
+    satellite_private_ip: "{{ satellite_ec2_instance.instances[0].network_interfaces[0].private_ip_address }}"
+
+# add dns entry for satellite
+- name: add public A record for satellite
+  route53:
+    state: present
+    hosted_zone_id: "{{ route53_domain.id }}"
+    record: "{{ satellite_fqdn }}"
+    type: A
+    ttl: 60
+    value: "{{ satellite_public_ip }}"
+    wait: yes
+
+# add dns entry for satellite
+- name: add private A record for satellite
+  route53:
+    state: present
+    hosted_zone_id: "{{ route53_domain_private.id }}"
+    record: "{{ satellite_fqdn }}"
+    type: A
+    ttl: 60
+    value: "{{ satellite_private_ip }}"
+    wait: yes
+    overwrite: yes
+
+# add dns entry for satellite
+- name: add private PTR record for satellite
+  route53:
+    state: present
+    hosted_zone_id: "{{ route53_reverse_zone.zone_id }}"
+    record: "{{ (satellite_private_ip.split('.'))[::-1]|join('.') }}.in-addr.arpa"
+    type: PTR
+    ttl: 60
+    value: "{{ satellite_fqdn }}"
+    wait: yes
+    overwrite: yes

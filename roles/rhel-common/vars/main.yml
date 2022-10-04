@@ -1,0 +1,10 @@
+---
+# vars file for satellite-server
+
+required_packages:
+  - firewalld
+  - chrony
+
+required_services:
+  - firewalld
+  - chronyd

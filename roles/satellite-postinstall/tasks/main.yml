@@ -1,0 +1,10 @@
+---
+# tasks file for satellite-server
+- import_tasks: satellite-subscription.yml
+- import_tasks: satellite-repos.yml
+- import_tasks: satellite-compute.yml
+- import_tasks: satellite-provisioning-template.yml
+- import_tasks: satellite-lifecycle.yml
+- import_tasks: satellite-hostgroup.yml
+- debug:
+    msg: "{{ my_repo_sets.repository_sets | selectattr('enabled') | selectattr('repositories') }}"

@@ -1,0 +1,16 @@
+# create and upload keypair for ec2 usage, did it this way to ensure the private key was available locally.
+
+# create keypair locally
+- name: create ssh keypair
+  openssh_keypair:
+    path: "{{ ec2_keypair_file }}"
+    type: rsa
+    size: "{{ ec2_key_size }}"
+    state: present
+    force: no
+
+- name: upload public key to aws
+  ec2_key:
+    name: "{{ vpc_key }}"
+    key_material: "{{ item }}"
+  with_file: "{{ ec2_keypair_file }}.pub"

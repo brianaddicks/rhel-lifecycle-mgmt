@@ -1,0 +1,4 @@
+---
+# defaults file for satellite-server
+satellite_organization: "Default Organization"
+satellite_location: "Default Location"

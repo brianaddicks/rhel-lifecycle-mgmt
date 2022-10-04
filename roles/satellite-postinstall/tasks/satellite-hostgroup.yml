@@ -1,0 +1,46 @@
+# create activation key
+- name: create activation keys
+  redhat.satellite.activation_key:
+    name: "{{ item }}"
+    organization: "{{ satellite_organization }}"
+    lifecycle_environment: "Library"
+  loop: "{{ satellite_activation_keys }}"
+
+# create hostgroup
+- name: "create a hostgroup for aws deployments"
+  redhat.satellite.hostgroup:
+    name: "{{ satellite_hostgroup_name }}"
+    lifecycle_environment: Library
+    state: present
+    organization: "{{ satellite_organization }}"
+    locations: "{{ satellite_location }}"
+    content_view: "Default Organization View"
+    compute_resource: "{{ satellite_compute_resource_name }}"
+    content_source: "{{ inventory_hostname }}"
+    compute_profile: "{{ satellite_compute_profile_name }}"
+    domain: "{{ ansible_facts.domain }}"
+    architecture: x86_64
+    operatingsystem: "RHEL {{ ansible_facts.distribution_version }}"
+    activation_keys: "{{ satellite_activation_keys[0] }}"
+
+#TODO: add ansible callback parameters
+
+- name: "Create a host"
+  redhat.satellite.host:
+    hostgroup: "{{ satellite_hostgroup_name }}"
+    state: present
+    compute_resource: "{{ satellite_compute_resource_name }}"
+    image: "{{ satellite_rhel_image_name }}"
+    name: "{{ satellite_test_machine_name }}.{{ ansible_facts.domain }}"
+    validate_certs: no
+    organization: "{{ satellite_organization }}"
+    location: "{{ satellite_location }}"
+    root_pass: "{{ satellite_test_machine_root_pass }}"
+    parameters:
+      - name: activationkey
+        value: "{{ satellite_activation_keys[0] }}"
+      - name: remote_execution_ssh_user
+        value: "ec2-user"
+      - name: remote_execution_connect_by_ip
+        value: true
+  when: not satellite_skip_create_host

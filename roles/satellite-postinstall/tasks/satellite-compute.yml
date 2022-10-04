@@ -1,0 +1,40 @@
+# create required compute resources
+- name: create EC2 compute resource
+  redhat.satellite.compute_resource:
+    name: "{{ satellite_compute_resource_name }}"
+    description: EC2
+    locations:
+      - "{{ satellite_location }}"
+    organizations:
+      - "{{ satellite_organization }}"
+    provider: EC2
+    provider_params:
+      user: "{{ aws_access_key }}"
+      password: "{{ aws_secret_key }}"
+      region: "{{ aws_region }}"
+    state: present
+
+# create image for ec2
+- name: create Image for EC2
+  redhat.satellite.image:
+     name: "{{ satellite_rhel_image_name }}"
+     image_uuid: "{{ desired_ami_id }}"
+     image_username: "ec2-user"
+     operatingsystem: "RHEL {{ ansible_facts.distribution_version }}"
+     compute_resource: "EC2_compute_resource"
+     architecture: "x86_64"
+
+# compute profile
+- name: create compute profile
+  redhat.satellite.compute_profile:
+    name: "{{ satellite_compute_profile_name }}"
+    compute_attributes:
+    - compute_resource: "{{ satellite_compute_resource_name }}"
+      vm_attrs:
+        flavor_id: m1.small
+        image_id: "{{ desired_ami_id }}"
+        subnet_id: "{{ vpc_subnet_id }}"
+        managed_ip: private
+        security_group_ids: "{{ vpc_security_groups }}"
+    state: present
+  register: my_compute_profile

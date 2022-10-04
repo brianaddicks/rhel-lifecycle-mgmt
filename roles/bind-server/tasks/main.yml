@@ -1,0 +1,22 @@
+---
+# tasks file for bind-server
+
+# enable repos
+- name: enable rhsm repos
+  rhsm_repository:
+    name: "{{ required_repos }}"
+    state: enabled
+    purge: yes
+
+# install required packages
+- name: install sos and satellite packages
+  dnf:
+    name: "{{ required_packages }}"
+    state: latest
+
+# start dns service
+- name: start dns server
+  service:
+    name: named
+    state: started
+    enabled: yes

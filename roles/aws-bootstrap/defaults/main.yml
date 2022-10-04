@@ -1,0 +1,46 @@
+---
+# defaults file for aws-bootstrap
+
+# general details about our VPC
+vpc_name: ansibled-vpc
+vpc_key: ansibled-key
+vpc_dns_zone: ansibled
+aws_region: us-east-1
+vpc_security_group_name: vpc
+
+# IP CIDR block for the VPC
+vpc_cidr_block: 10.20.0.0/24
+
+# a map defining the subnets we will build in the VPC
+vpc_subnets:
+  private-a:
+    cidr: 10.20.0.0/24
+    az: "{{ aws_region }}a"
+
+# a list defining the security groups for our VPC
+vpc_security_groups:
+  - name: "{{ vpc_security_group_name }}"
+    description: "Allow internal traffic in the VPC"
+    rules:
+      - proto: all
+        group_name: vpc
+      - proto: tcp
+        cidr_ip: "{{ my_public_ip.ansible_facts.ipify_public_ip }}/32"
+        from_port: 22
+        to_port: 22
+      - proto: tcp
+        cidr_ip: "{{ my_public_ip.ansible_facts.ipify_public_ip }}/32"
+        from_port: 443
+        to_port: 443
+
+# satellite instance type, 2 vCPU and 8GiB memory
+satellite_instance_type: t2.large
+satellite_hostname: satellite
+
+# keypair details
+ec2_keypair_file: "~/.ssh/rhel-lifecycle"
+ec2_key_size: 4096
+
+# satellite instance type, 2 vCPU and 8GiB memory
+bind_instance_type: t2.micro
+bind_hostname: bind

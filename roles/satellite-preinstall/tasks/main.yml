@@ -1,0 +1,4 @@
+---
+# tasks file for satellite-server
+- import_tasks: firewall.yml
+- import_tasks: packages.yml

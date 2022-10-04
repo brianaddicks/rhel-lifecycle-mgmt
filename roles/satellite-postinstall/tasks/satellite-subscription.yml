@@ -1,0 +1,14 @@
+# satellite subscription tasks
+
+# upload file to server
+- name: upload manifest files
+  copy:
+    src: "{{ manifest_file }}"
+    dest: "{{ manifest_file | basename }}"
+
+# import into default organization
+- name: "import manifest file"
+  redhat.satellite.subscription_manifest:
+    organization: "{{ satellite_organization }}"
+    state: present
+    manifest_path: "{{ manifest_file | basename }}"

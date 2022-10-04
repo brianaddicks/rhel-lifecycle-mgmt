@@ -1,0 +1,38 @@
+---
+# defaults file for satellite-server
+
+# repos
+# added the cv_name property to use for content views, they use different names that then repo module
+satellite_enabled_repositories:
+  - name: 'Red Hat Satellite Client 6 (for RHEL 7 Server) (RPMs)'
+    cv_name: 'Red Hat Satellite Client 6 for RHEL 7 Server RPMs x86_64'
+    product: 'Red Hat Enterprise Linux Server'
+    basearch: 'x86_64'
+
+satellite_enabled_repositories_with_releasever:
+  - name: 'Red Hat Enterprise Linux 8 for x86_64 - AppStream (RPMs)'
+    cv_name: 'Red Hat Enterprise Linux 8 for x86_64 - AppStream RPMs 8'
+    product: 'Red Hat Enterprise Linux for x86_64'
+    basearch: 'x86_64'
+    releasever: 8
+
+satellite_compute_profile_name: "aws_m1_small"
+satellite_hostgroup_name: "AWS Host Group"
+satellite_hostgroup_content_view: "Default Organization View"
+satellite_compute_resource_name: EC2_compute_resource
+compute_profile_flavor: m1.small
+satellite_activation_keys:
+  - "Central IT"
+  - Schools
+  - Students
+
+satellite_rhel_image_name: "RHEL 8 with Python 3.9"
+satellite_test_machine_name: "test-client"
+
+satellite_lifecycle_environment_name: "RHEL Demo Lifecycle"
+satellite_content_views:
+  - Test
+  - Development
+  - Production
+
+satellite_skip_create_host: false

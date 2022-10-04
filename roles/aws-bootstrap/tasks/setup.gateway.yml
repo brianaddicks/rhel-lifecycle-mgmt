@@ -1,0 +1,26 @@
+# tasks/vpc/setup.gateways.yml
+# ---
+# creates the gateways for the VPC, and sets up routing for the subnets
+
+# create the internet gateway, saving the output to extract the ID later
+- name: create internet gateway
+  ec2_vpc_igw:
+    vpc_id: "{{ vpc_id }}"
+  register: create_gateway
+
+# parse the outputs of the Ansible modules for some important details referred to when setting up routing
+- name: "set facts: Gateway IDs and IP"
+  set_fact:
+    vpc_gateway_id: "{{ create_gateway.gateway_id }}"
+
+# public route table that routes through the internet gateway -- attach it to our three public subnets
+- name: create route table for public subnets
+  ec2_vpc_route_table:
+    vpc_id: "{{ vpc_id }}"
+    tags:
+      Name: "{{ vpc_name }}-public"
+    subnets:
+      - "{{ vpc_subnet_id }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ vpc_gateway_id }}"

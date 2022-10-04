@@ -1,0 +1,5 @@
+---
+# vars file for aws-bootstrap
+
+# specify to run Ansible for hosts locally by default, not over SSH
+ansible_connection: local

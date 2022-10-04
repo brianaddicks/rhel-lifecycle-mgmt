@@ -1,0 +1,22 @@
+# get latest gold image name for rhel 8.6, non beta
+- name: get gold image ami
+  amazon.aws.ec2_ami_info:
+    owners: 309956199498
+    filters:
+      name: "RHEL-8.6*Access*"
+      architecture: "x86_64"
+  register: available_amis
+
+- set_fact:
+    ami_gold_image: "{{ available_amis.images | selectattr('name','match','RHEL-8\\.6\\..+HVM-\\d') }}"
+
+- set_fact:
+    ami_gold_image_id: "{{ ami_gold_image[0].image_id }}"
+
+- set_fact:
+    desired_ami_id: "{{ ami_name }}"
+  when: ami_name is defined
+
+- set_fact:
+    desired_ami_id: "{{ ami_gold_image_id }}"
+  when: ami_name is not defined

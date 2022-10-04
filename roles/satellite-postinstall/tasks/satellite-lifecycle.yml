@@ -1,0 +1,16 @@
+# create lifecycle environment
+- name: "Add a production lifecycle environment"
+  redhat.satellite.lifecycle_environment:
+    name: "{{ satellite_lifecycle_environment_name }}"
+    organization: "{{ satellite_organization }}"
+    prior: "Library"
+    description: "The production environment"
+    state: "present"
+
+# create content views
+- name: "Create or RHEL content view"
+  redhat.satellite.content_view:
+    name: "{{ item }}"
+    organization: "{{ satellite_organization }}"
+    repositories: "{{ satellite_enabled_repositories | json_query('[].{name: cv_name, product: product}') }}"
+  loop: "{{ satellite_content_views }}"

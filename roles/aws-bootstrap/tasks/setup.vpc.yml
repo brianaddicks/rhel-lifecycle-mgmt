@@ -1,0 +1,109 @@
+# creates a VPC, configures a list of defined subnets, configures a list of defined security groups
+
+# use the Ansible module to create our VPC, saving the output into `create_vpc`
+- name: create VPC
+  ec2_vpc_net:
+    name: "{{ vpc_name }}"
+    cidr_block: "{{ vpc_cidr_block }}"
+    region: "{{ aws_region }}"
+  register: create_vpc
+
+# parse the output of creating the VPC to extract the VPC ID -- we need to specify this in the subsequent tasks
+- name: "set fact: VPC ID"
+  set_fact:
+    vpc_id: "{{ create_vpc.vpc.id }}"
+
+# iterate over our dictionary of subnets with `with_dict`, and create each one with the Ansible module
+- name: create VPC subnets
+  ec2_vpc_subnet:
+    vpc_id: "{{ vpc_id }}"
+    cidr: "{{ item.value.cidr }}"
+    az: "{{ item.value.az }}"
+    tags:
+      Name: "{{ item.key }}"
+  with_dict: "{{ vpc_subnets }}"
+  register: create_vpc_subnets
+
+# get your current public IP to add to the VPC security groups
+- name: get public IP
+  ipify_facts:
+  register: my_public_ip
+
+# iterate over our list of security groups and create each one with the Ansible module
+- name: create VPC security groups
+  ec2_group:
+    name: "{{ item.name }}"
+    description: "{{ item.description }}"
+    vpc_id: "{{ vpc_id }}"
+    rules: "{{ item.rules }}"
+  loop: "{{ vpc_security_groups }}"
+  register: returned_security_groups
+
+# get existing route 53 zones
+- name: List all hosted zones
+  community.aws.route53_info:
+    query: hosted_zone
+  register: hosted_zones
+
+# look for zone that matches '^sandbox'
+- name: set fact
+  set_fact:
+    route53_domain: "{{ item }}"
+  loop: "{{ hosted_zones.hosted_zones | selectattr('name','match','^sandbox') | selectattr('config.private_zone','match','False') }}"
+
+# update dhcp options to use correct domain
+- amazon.aws.ec2_vpc_dhcp_option:
+    region: "{{ aws_region }}"
+    domain_name: "{{ route53_domain.name }}"
+    vpc_id: "{{ vpc_id }}"
+    inherit_existing: True
+    delete_old: False
+
+# find the VPC by name
+- name: VPC facts
+  ec2_vpc_net_info:
+    filters:
+      "tag:Name": "{{ vpc_name }}"
+  register: vpc_facts
+
+# parse the facts output and extract the VPC ID
+- name: "set fact: VPC ID"
+  set_fact:
+    vpc_id: "{{ vpc_facts.vpcs[0].id }}"
+
+- name: create a private zone
+  route53_zone:
+    zone: "{{ route53_domain.name }}"
+    vpc_id: '{{ vpc_id }}'
+    vpc_region: "{{ aws_region }}"
+
+- name: create reverse private zone
+  route53_zone:
+    zone: "{{ ((vpc_cidr_block | regex_search('^\\d+\\.\\d+\\.\\d+')).split('.'))[::-1]|join('.') }}.in-addr.arpa"
+    vpc_id: '{{ vpc_id }}'
+    vpc_region: "{{ aws_region }}"
+  register: route53_reverse_zone
+
+# get existing route 53 zones
+- name: List all hosted zones
+  community.aws.route53_info:
+    query: hosted_zone
+  register: hosted_zones
+
+# look for zone that matches '^sandbox'
+- name: set fact
+  set_fact:
+    route53_domain_private: "{{ item }}"
+  loop: "{{ hosted_zones.hosted_zones | selectattr('name','match','^sandbox') | selectattr('config.private_zone','match','True') }}"
+
+# find our subnets by VPC ID that was just defined
+- name: VPC subnet facts
+  ec2_vpc_subnet_info:
+    filters:
+      vpc-id: "{{ vpc_id }}"
+  register: vpc_subnet_facts
+
+# set subnet id fact
+- name: subnet id facts
+  set_fact:
+    vpc_subnet_id: "{{ vpc_subnet_facts.subnets[0].id }}"

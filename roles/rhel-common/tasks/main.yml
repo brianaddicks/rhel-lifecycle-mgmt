@@ -1,0 +1,66 @@
+# tasks common to all rhel hosts
+
+# check for python
+- name: Check for Python
+  raw: test -e /usr/bin/python3
+  changed_when: false
+  failed_when: false
+  register: check_python
+
+# install python
+- name: install python
+  raw: 'sudo yum -y install python3'
+  args:
+    exectuable: /bin/bash
+  when: check_python.rc != 0
+
+# set hostname
+- name: set hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+    use: systemd
+
+# enable rhsm to manage repos (image comes with aws rhui config)
+- name: allow rhsm to manage repos
+  changed_when: false
+  shell: subscription-manager config --rhsm.manage_repos=1
+
+# register with subscription-manager
+- name: register with red hat subscription manager
+  redhat_subscription:
+    state: present
+    username: "{{ rhsm_username }}"
+    password: "{{ rhsm_password }}"
+
+# update all packages
+- name: update all packages with yum
+  yum:
+    name: '*'
+    state: latest
+
+# install some basic packages
+- name: install firewalld and chrony
+  yum:
+    name: "{{ required_packages }}"
+    state: latest
+
+# enable service
+- name: enable chrony and firewalld
+  systemd:
+    state: started
+    enabled: yes
+    name: "{{ item }}"
+  loop: "{{ required_services }}"
+
+# selinux
+- name: enable selinux
+  selinux:
+    state: enforcing
+    policy: targeted
+
+# update cloud.cfg file so aws doesn't overwrite hostname on reboot
+- name: update cloud.cfg file to preserve hostname
+  lineinfile:
+    path: /etc/cloud/cloud.cfg
+    regexp: '^preserve_hostname:'
+    line: "preserve_hostname: true"
