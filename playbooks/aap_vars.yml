@@ -1,6 +1,6 @@
 controller_components:
-  - credential_types
-#  - job_templates
+#  - credential_types
+  - job_templates
 
 controller_credential_types:
   - name: Red Hat API Credential
@@ -17,35 +17,13 @@ controller_credential_types:
       env:
         REDHAT_API_OFFLINE_TOKEN: !unsafe "{{ offline_token }}"
 
-# controller_templates:
-#   - name: "ACTIVE DIRECTORY / Move User OU"
-#     job_type: run
-#     inventory: "Workshop Inventory"
-#     project: "Personal Demo Project"
-#     playbook: "move-ad-user.yml"
-#     execution_environment: Default execution environment
-#     credentials:
-#     - "Workshop Credential"
-#     survey_enabled: true
-#     survey:
-#       name: ''
-#       description: ''
-#       spec:
-#         - question_name: Username
-#           type: text
-#           variable: sam_account_name
-#           required: true
-#         # - question_name: New OU DistinguishedName
-#         #   type: text
-#         #   variable: ou_path
-#         #   required: true
-#         - question_name: New OU
-#           type: multiplechoice
-#           variable: ou_path
-#           required: true
-#           choices: "{{ ad_desired_ous }}"
-#             # - Finance
-#             # - Human Resources
+controller_templates:
+  - name: "RHEL Lifecycle - Bootstrap"
+    job_type: run
+    inventory: "Workshop Inventory"
+    project: "RHEL Lifecyce Management"
+    playbook: "satellite.yml"
+    execution_environment: Default execution environment
 
 #   - name: "ACTIVE DIRECTORY / List All Groups"
 #     job_type: run
