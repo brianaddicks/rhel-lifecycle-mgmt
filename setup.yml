@@ -42,3 +42,10 @@
             project: "{{ project_name }}"
             playbook: "{{ playbook_path }}/satellite.yml"
             execution_environment: "{{ ee_name }}"
+
+          - name: "RHEL Lifecycle - Subscription Allocation"
+            job_type: run
+            inventory: "{{ inventory_name }}"
+            project: "{{ project_name }}"
+            playbook: "{{ playbook_path }}/rh_subscription.yml"
+            execution_environment: "{{ ee_name }}"
