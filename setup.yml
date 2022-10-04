@@ -14,7 +14,7 @@
       loop: "{{ controller_components }}"
       vars:
         controller_components:
-      #  - credential_types
+        - credential_types
         - job_templates
 
         controller_credential_types:
@@ -37,5 +37,5 @@
             job_type: run
             inventory: "Workshop Inventory"
             project: "RHEL Lifecyce Management"
-            playbook: "satellite.yml"
+            playbook: "playbooks/satellite.yml"
             execution_environment: Default execution environment
