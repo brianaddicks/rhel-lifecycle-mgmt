@@ -14,7 +14,7 @@
         project_name: RHEL Lifecycle Management
         inventory_name: Demo Inventory
         playbook_path: playbooks
-        ee_name: "{{ RHEL Lifecycle EE }}"
+        ee_name: RHEL Lifecycle EE
 
         controller_components:
           - credential_types
