@@ -2,5 +2,6 @@
 collections:
   - redhat.satellite
   - redhat.satellite_operations
+  - redhat_cop.controller_configuration
   - community.general
   - amazon.aws

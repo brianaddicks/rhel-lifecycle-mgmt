@@ -1,0 +1,15 @@
+- name: Setup AAP Components
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - "aap_vars.yml"
+  # vars:
+  #   - controller_validate_certs: false
+
+  tasks:
+    - name: Setup Components
+      include_role:
+        name: "redhat_cop.controller_configuration.{{ item }}"
+      loop: "{{ controller_components }}"
+      when:
+        - controller_components | d("") | length > 0
