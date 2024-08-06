@@ -3,9 +3,9 @@
   hosts: localhost
   gather_facts: false
   vars:
-    redhat_contract_number: "13878715"
+    redhat_contract_number: "11111111"
     redhat_sub_allocation_name: test-lifecycle4
-    redhat_subscription_name: 'Employee SKU'
+    redhat_subscription_name: 'My Subscription'
     redhat_entitlement_allocation_count: 10
     redhat_subscription_satellite_version: "sat-6.11"
     redhat_api_offline_token: "{{ lookup('ansible.builtin.env', 'REDHAT_API_OFFLINE_TOKEN') }}"
